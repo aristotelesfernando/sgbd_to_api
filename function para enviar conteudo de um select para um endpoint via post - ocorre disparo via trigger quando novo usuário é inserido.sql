@@ -10,6 +10,7 @@ import json
 new_row = TD["new"]
 json_data = json.dumps(new_row)
 
+-- TROQUE PELA URL DO NGROK
 url = ' https://1c9f-187-13-32-189.ngrok-free.app/post_request'
 
 headers = {'Content-type': 'application/json'}

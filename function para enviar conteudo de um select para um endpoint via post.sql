@@ -13,6 +13,7 @@ result = cursor[0]
 
 json_data = json.dumps(result)
 
+-- TROQUE PELA URL DO NGROK
 url = ' https://1c9f-187-13-32-189.ngrok-free.app/post_request'
 
 headers = {'Content-type': 'application/json'}
@@ -35,6 +36,7 @@ cursor = plpy.execute("SELECT * FROM public.people")
 
 json_data = json.dumps([dict(row) for row in cursor])
 
+-- TROQUE PELA URL DO NGROK
 url = ' https://1c9f-187-13-32-189.ngrok-free.app/post_request'
 
 headers = {'Content-type': 'application/json'}
