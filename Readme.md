@@ -96,15 +96,16 @@ services:
 
 ```
 
-### Execute uma ferramenta de gerenciamento de banco (pgadmin, dbeaver, etc...)
-
-Existem scripts auxiliares que devem ser usados para criar uma tabela e popular a tabela criada com dados fake para gerar as consutas de teste. então abra a ferramenta de preferência e conecte-se a instância do banco em execução dentro da VM ou container.
-
 Não esqueça de executar o arquivo composer para levantar o container do banco:
 
 ```sh
 docker-compose up -d
 ```
+
+### Execute uma ferramenta de gerenciamento de banco (pgadmin, dbeaver, etc...)
+
+Existem scripts auxiliares que devem ser usados para criar uma tabela e popular a tabela criada com dados fake para gerar as consutas de teste. então abra a ferramenta de preferência e conecte-se a instância do banco em execução dentro da VM ou container.
+
 
 ## Criando a estrutura de dados para teste (opcional)
 _É opcional, já que você pode usar a sua própria base de dados._
