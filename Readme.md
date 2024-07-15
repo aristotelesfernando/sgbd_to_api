@@ -7,12 +7,11 @@ O objetivo deste repositório e dos arquivos e informações contidos neste repo
 ### Requisitos para execução desta "POC"
 
 1. Banco de dados Postgresql 16 (foi feito em lab com essa versãa)
-2. computador com Linux instalado (debian ou ubuntu)
+2. Computador com Linux instalado (debian ou ubuntu) ou uma das opções abaixo
    1. VM com Postgresql instalado e configurado para acesso externo 
    2. container com POSTGRESQL (latest) com as mesmas configurações
 3. Criação de usuário com permissão para criação dos objetos e execução dos scripts ou o usuário POSTGRES ter permissão para conexão remota ao postgresql.
-4. Postgresql configurado para aceitar conexões externas 
-5. Instalar os packages necessários:
+4. Instalar os packages necessários:
    1. python3-full 
    2. python3-pip
    3. python3-httplib2
@@ -96,7 +95,7 @@ services:
 
 ```
 
-Não esqueça de executar o arquivo composer para levantar o container do banco:
+Não esqueça de executar o arquivo composer para buildar a imagem e levantar o container do banco:
 
 ```sh
 docker-compose up -d
@@ -104,7 +103,7 @@ docker-compose up -d
 
 ### Execute uma ferramenta de gerenciamento de banco (pgadmin, dbeaver, etc...)
 
-Existem scripts auxiliares que devem ser usados para criar uma tabela e popular a tabela criada com dados fake para gerar as consutas de teste. então abra a ferramenta de preferência e conecte-se a instância do banco em execução dentro da VM ou container.
+Existem scripts auxiliares que devem ser usados para criar uma tabela e popular esta tabela criada com dados fake para gerar as consutas de teste. Então abra a ferramenta de preferência e conecte-se a instância do banco em execução dentro da VM ou container.
 
 
 ## Criando a estrutura de dados para teste (opcional)
@@ -129,7 +128,7 @@ CREATE DATABASE agenda_db
     IS_TEMPLATE = False;
 ```
 
-> criação de tabela.sql
+> criação de tabela
 
 ```sql
 -- DROP TABLE IF EXISTS public.people;
@@ -149,7 +148,7 @@ ALTER TABLE IF EXISTS public.people
 ```
 
 
-> população da tabela para testes.sql
+> população da tabela para testes
 
 ```sql
 INSERT INTO public.people (name, email, mobile, country_name) VALUES ('Alice Silva', 'alice.silva@example.com', '555-1234', 'Brasil');
@@ -227,21 +226,21 @@ SELECT send_post_request();
 
 Acompanhe na sua API o recebimento dos dados oriundos do banco de dados.
 
-A execução da funcionalidade acima é bastante simplificada, mas podemos também tornar as coisas mais sofisticadas, fazendo, por exemplo que seja feito um POST para a API a cada insert novo na tabela com os dados que foram inseridos.
+A execução da funcionalidade acima é bastante simplificada, mas podemos também tornar as coisas mais sofisticadas, fazendo por exemplo, que seja feito um POST para a API a cada insert novo na tabela com os dados que foram inseridos.
 
 Dessa forma vamos criar uma nova function e também uma trigger para executar a function quando ocorrer um enevto de inserção de um novo registro na tabela.
 
 **Nova function:**
 ```sql
-CREATE OR REPLACE FUNCTION send_post_request()
-RETURNS void AS $$
+CREATE OR REPLACE FUNCTION send_post_request_trigger()
+RETURNS trigger AS $$
 import httplib2
 import json
 
-cursor = plpy.execute("SELECT * FROM public.people")
+new_row = TD["new"]
+json_data = json.dumps(new_row)
 
-json_data = json.dumps([dict(row) for row in cursor])
-
+-- TROQUE PELA URL DO NGROK
 url = ' https://1c9f-187-13-32-189.ngrok-free.app/post_request'
 
 headers = {'Content-type': 'application/json'}
@@ -251,6 +250,8 @@ response, content = http.request(url, 'POST', headers=headers, body=json_data)
 
 if response.status != 200:
     plpy.error('Erro ao enviar a requisição POST: ' + response.reason)
+
+return None
 $$ LANGUAGE plpython3u;
 ```
 
@@ -266,13 +267,13 @@ Após a criação destes novos objetos, qualquer linha que for inserida na tabel
 
 ## Tópico Extra: API de teste
 
-Caso se esteja fazndo um laboratório e não se tenha uma API disponível para testes, foi incluído no repositório na pasta __API__ um pequeno programa que sobre uma api na porta 5555 e é executado localmente. Novamente recomendamos o uso do NGROK para exposição da API ao bando de dados já que o container ou a VM dificilmente conseguirão acessar o endereço _http://localhost:555_.
+Caso se esteja fazndo um laboratório e não se tenha uma API disponível para testes, foi incluído no repositório na pasta __API__ um pequeno programa que sobe uma api na porta 5555 e é executado localmente. Novamente recomendamos o uso do NGROK para exposição da API ao bando de dados já que o container ou a VM dificilmente conseguirão acessar o endereço _http://localhost:5555_.
 
 > Para execução da API é necessário ter instalado localmente o Python versão >= 3.10
 
 Para execução da API, siga os passos abaixo:
 
-1. Abra um console shell (windows já que o lab original foi desenvolvido em Windows), acesse a pasta da API e execute o seguinte comando para ativar o virtual enviroment do python:
+1. Abra um console shell (windows já que o lab original foi desenvolvido em Windows), acesse a pasta da API e execute o seguinte comando para ativar o virtual enviroment do python que foi incluído no repositório:
 ```sh
 .\venv\Scripts\activate
 ```
